@@ -15,5 +15,8 @@ namespace TableEntityGenerator.Core.Models
 
         public void Deconstruct(out string name, out IEnumerable<ColumnInfo> columns, out string? description)
         => (name, columns, description) = (Name, Columns, Description);
+
+        public override string ToString()
+            => $"{Name} : {Description}";
     }
 }

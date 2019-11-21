@@ -4,6 +4,12 @@
     <ProjectReference Include="..\TableEntityGenerator.Core\TableEntityGenerator.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="MicroBatchFramework" Version="1.6.1" />
+    <PackageReference Include="Npgsql" Version="4.1.2" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>

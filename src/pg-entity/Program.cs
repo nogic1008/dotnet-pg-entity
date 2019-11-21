@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
+using MicroBatchFramework;
 
-namespace pg_entity
+namespace TableEntityGenerator.Npgsql
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
+        private static async Task Main(string[] args)
+            => await BatchHost.CreateDefaultBuilder().RunBatchEngineAsync<CreateEntityBatch>(args);
     }
 }

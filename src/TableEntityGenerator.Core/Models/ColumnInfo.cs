@@ -17,5 +17,8 @@ namespace TableEntityGenerator.Core.Models
 
         public void Deconstruct(out string name, out string type, out bool isPrimary, out bool notNull, out string? description)
         => (name, type, isPrimary, notNull, description) = (Name, Type, IsPrimary, NotNull, Description);
+
+        public override string ToString()
+            => $"{Name} : {Description}";
     }
 }
