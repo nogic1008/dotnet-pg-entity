@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Npgsql;
@@ -17,7 +16,7 @@ namespace TableEntityGenerator.Npgsql
             => (_connectionString, _schema) = (connectionString, schema);
         public IDictionary<string, string> TypeMapping => throw new System.NotImplementedException();
 
-        public async ValueTask<IEnumerable<TableInfo>> ListAllAsync()
+        public async IAsyncEnumerable<TableInfo> ListAllAsync()
         {
             using var conn = new NpgsqlConnection(_connectionString);
             #region SQL
@@ -35,16 +34,16 @@ namespace TableEntityGenerator.Npgsql
             + "    AND pgd.objsubid = 0\n"
             + "WHERE\n"
             + "  tbl.table_schema NOT IN ('pg_catalog', 'information_schema')\n"
-            + "  AND (tbl.table_schema = :schema OR :schema IS NULL)";
+            + "  AND tbl.table_schema = COALESCE(:schema, tbl.table_schema)";
             #endregion
 
             var tableData = await conn.QueryAsync(sql, new { schema = _schema });
             foreach (var table in tableData)
             {
-                yield return new TableInfo(table.name, await ListColumns(table.schema, table.name), table.description);
+                yield return new TableInfo(table.name, await ListColumnsAsync(table.schema, table.name), table.description);
             }
 
-            async ValueTask<IEnumerable<ColumnInfo>> ListColumns(string schema, string tableName)
+            async ValueTask<IEnumerable<ColumnInfo>> ListColumnsAsync(string schema, string tableName)
             {
                 #region SQL
                 const string sql =
