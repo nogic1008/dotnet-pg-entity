@@ -14,7 +14,61 @@ namespace TableEntityGenerator.Npgsql
 
         public PgTableInfoRepository(string connectionString, string? schema = null)
             => (_connectionString, _schema) = (connectionString, schema);
-        public IDictionary<string, string> TypeMapping => throw new System.NotImplementedException();
+
+        /// <summary>
+        /// PostgreSQL - C# Type Mapping.
+        /// <see cref="https://www.npgsql.org/doc/types/basic.html" />
+        /// </summary>
+        /// <typeparam name="string">PostgreSQL type</typeparam>
+        /// <typeparam name="string">C# type</typeparam>
+        public IDictionary<string, string> TypeMapping => new Dictionary<string, string>(){
+            { "boolean", "bool" },
+            { "smallint", "short" },
+            { "integer", "int" },
+            { "bigint", "long" },
+            { "real", "float" },
+            { "double precision", "double" },
+            { "numeric","decimal" },
+            { "money","decimal" },
+            { "text","string" },
+            { "character varying","string" },
+            { "character","string" },
+            { "citext","string" },
+            { "json","string" },
+            { "jsonb","string" },
+            { "xml","string" },
+            { "point", "NpgsqlPoint" },
+            { "lseg", "NpgsqlLSeg" },
+            { "path", "NpgsqlPath" },
+            { "polygon", "NpgsqlPolygon" },
+            { "line", "NpgsqlLine" },
+            { "circle", "NpgsqlCircle" },
+            { "box", "NpgsqlBox" },
+            { "bit", "BitArray" },
+            { "bit varying", "BitArray" },
+            { "hstore", "Dictionary<string, string>" },
+            { "uuid", "Guid" },
+            { "cidr", "(IPAddress, int)" },
+            { "inet", "IPAddress" },
+            { "macaddr", "PhysicalAddress" },
+            { "tsquery", "NpgsqlTsQuery" },
+            { "tsvector", "NpgsqlTsVector" },
+            { "date", "DateTime" },
+            { "interval", "TimeSpan" },
+            { "timestamp", "DateTime" },
+            { "timestamp with time zone", "DateTimeOffset" },
+            { "time", "TimeSpan" },
+            { "time with time zone", "DateTimeOffset" },
+            { "bytea", "byte[]" },
+            { "oid", "uint" },
+            { "xid", "uint" },
+            { "cid", "uint" },
+            { "oidvector", "uint[]" },
+            { "name", "string" },
+            { "char", "char" },
+            { "geometry", "PostgisGeometry" },
+            { "record", "object[]" }
+        };
 
         public async IAsyncEnumerable<TableInfo> ListAllAsync()
         {
