@@ -45,11 +45,8 @@ jobs:
         dotnet-version: ${{ matrix.dotnet-sdk-version }}
     - name: Build
       run: dotnet build -c Debug --nologo
-    - name: Build (2nd Phase)
-      if: failure()
-      run: dotnet build -c Debug --nologo
     - name: Test
-      run: dotnet test -c Debug --no-build --nologo
+      run: dotnet test -c Debug --nologo
 
   publish:
     if: contains(github.ref, 'tags/v')
@@ -58,12 +55,12 @@ jobs:
     strategy:
       matrix:
         # see https://github.com/dotnet/core/blob/master/release-notes/releases-index.json
-        dotnet-version: [3.0]
+        dotnet-version: ["3.0"]
         include:
-         - dotnet-version: 3.0
-           dotnet-sdk-version: 3.0.101
-         - dotnet-version: 3.1
-           dotnet-sdk-version: 3.1.100
+         - dotnet-version: "3.0"
+           dotnet-sdk-version: "3.0.101"
+         - dotnet-version: "3.1"
+           dotnet-sdk-version: "3.1.100"
     steps:
     - uses: actions/checkout@v1
     - uses: actions/cache@v1
@@ -83,7 +80,8 @@ jobs:
         dotnet-version: ${{ matrix.dotnet-sdk-version }}
     - name: Build & Pack
       run: |
-        dotnet pack ./src/pg-entity/pg-entity.csproj -c Release /p\:Version=${{ steps.get_version.outputs.version }}
+        dotnet build -c Release --nologo
+        dotnet pack ./src/pg-entity/pg-entity.csproj -c Release /p\:Version=${{ steps.get_version.outputs.version }} --nologo
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
