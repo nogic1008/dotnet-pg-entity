@@ -1,0 +1,102 @@
+name: .NET Core
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+  push:
+    paths-ignore:
+      - '**.md'
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  NUGET_XMLDOC_MODE: skip
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  test:
+    name: Debug Build & Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        # see https://github.com/dotnet/core/blob/master/release-notes/releases-index.json
+        dotnet-version: [3.0, 3.1]
+        include:
+         - dotnet-version: 3.0
+           dotnet-sdk-version: 3.0.101
+         - dotnet-version: 3.1
+           dotnet-sdk-version: 3.1.100
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/cache@v1
+      with:
+        path: ${{ github.workspace }}/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ matrix.dotnet-version }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    - name: Setup .NET Core ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet-sdk-version }}
+    - name: Build
+      run: dotnet build -c Debug --nologo
+    - name: Test
+      run: dotnet test -c Debug --no-build --nologo
+
+  publish:
+    if: contains(github.ref, 'tags/v')
+    needs: [test]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # see https://github.com/dotnet/core/blob/master/release-notes/releases-index.json
+        dotnet-version: [3.0]
+        include:
+         - dotnet-version: 3.0
+           dotnet-sdk-version: 3.0.101
+         - dotnet-version: 3.1
+           dotnet-sdk-version: 3.1.100
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/cache@v1
+      with:
+        path: ${{ github.workspace }}/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ matrix.dotnet-version }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    - name: Get Release Version
+      id: get_version
+      run: echo ::set-output name=version::${TAG_REF_NAME##*/v}
+      env:
+        TAG_REF_NAME: ${{ github.ref }}
+    - name: Setup .NET Core ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet-sdk-version }}
+    - name: Build & Pack
+      run: |
+        dotnet pack ./src/pg-entity/pg-entity.csproj -c Release /p\:Version=${{ steps.get_version.outputs.version }}
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./src/pg-entity/bin/Release/pg-entity.${{ steps.get_version.outputs.version }}.nupkg
+        asset_name: pg-entity.${{ steps.get_version.outputs.version }}.nupkg
+        asset_content_type: application/zip
