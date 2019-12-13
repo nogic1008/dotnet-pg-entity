@@ -14,7 +14,9 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   NUGET_XMLDOC_MODE: skip
-
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+  # Workaround for dotnet-t4 (see https://github.com/mono/t4/issues/70)
+  DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX: 2
 jobs:
   test:
     name: Debug Build & Test
@@ -23,14 +25,20 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         # see https://github.com/dotnet/core/blob/master/release-notes/releases-index.json
-        dotnet-version: [3.0, 3.1]
+        dotnet-version: ["3.0", "3.1"]
         include:
-         - dotnet-version: 3.0
-           dotnet-sdk-version: 3.0.101
-         - dotnet-version: 3.1
-           dotnet-sdk-version: 3.1.100
+         - dotnet-version: "3.0"
+           dotnet-sdk-version: "3.0.101"
+         - dotnet-version: "3.1"
+           dotnet-sdk-version: "3.1.100"
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/cache@v1
+      with:
+        path: ${{ github.workspace }}/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ matrix.dotnet-version }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
     - name: Setup .NET Core ${{ matrix.dotnet-version }}
       uses: actions/setup-dotnet@v1
       with:
@@ -58,6 +66,12 @@ jobs:
            dotnet-sdk-version: 3.1.100
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/cache@v1
+      with:
+        path: ${{ github.workspace }}/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ matrix.dotnet-version }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
     - name: Get Release Version
       id: get_version
       run: echo ::set-output name=version::${TAG_REF_NAME##*/v}
