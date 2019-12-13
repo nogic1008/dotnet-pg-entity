@@ -44,6 +44,9 @@ jobs:
         dotnet-version: ${{ matrix.dotnet-sdk-version }}
     - name: Build
       run: dotnet build -c Debug --nologo
+    - name: Build (2nd Phase)
+      if: failure()
+      run: dotnet build -c Debug --nologo
     - name: Test
       run: dotnet test -c Debug --no-build --nologo
 
