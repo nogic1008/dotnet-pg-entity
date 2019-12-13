@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <RootNamespace>TableEntityGenerator.Npgsql</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <PackageId>pg-entity</PackageId>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!-- Version is override on CI Build -->
+    <Version>1.0.0.0</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+
+    <Authors>nogic1008</Authors>
+    <Company />
+    <Summary>create entity class from postgresql</Summary>
+    <Description>$(Summary)</Description>
+    <PackageProjectUrl>https://github.com/nogic1008/dotnet-pg-entity</PackageProjectUrl>
+    <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Postgresql;postgres;Entity</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TableEntityGenerator.Core\TableEntityGenerator.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="MicroBatchFramework" Version="1.6.1" />
+    <PackageReference Include="Npgsql" Version="4.1.2" />
+  </ItemGroup>
+
+</Project>
